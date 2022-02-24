@@ -71,7 +71,8 @@ var createTaskEl = function(taskDataObj){
     //add a class & a custom attribute to the list element 
     listItemEl.className = "task-item";
     listItemEl.setAttribute("data-task-id", taskIdCounter);
-    //create div to hold the list & add a class name
+
+    //create div & add a class name
     var taskInfoEl = document.createElement("div");
     taskInfoEl.className = "task-info";
     //add HTML content to div
@@ -79,12 +80,27 @@ var createTaskEl = function(taskDataObj){
     //append the div to the list
     listItemEl.appendChild(taskInfoEl);
 
-    //creates the edit, delete, and status buttons & applies it to a variable
+    //create the edit, delete, and status buttons & apply them to a variable
     var taskActionsEl = createTaskActions(taskIdCounter);
     //append the task actions to the list
     listItemEl.appendChild(taskActionsEl);
     //append the list to the task to do container
     taskToDoEl.appendChild(listItemEl);
+
+    //if the status matches, then change the  item on the drop down list to the 0'th index
+    if (taskDataObj.status === "to do") {
+        listItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
+        //lastly, append to the parent container
+        taskToDoEl.appendChild(listItemEl);
+      } 
+    else if (taskDataObj.status === "in progress") {
+        listItemEl.querySelector("select[name='status-change']").selectedIndex = 1;
+        taskInProgressEl.appendChild(listItemEl);
+      } 
+    else if (taskDataObj.status === "completed") {
+        listItemEl.querySelector("select[name='status-change']").selectedIndex = 2;
+        taskCompletedEl.appendChild(listItemEl);
+      }
 
     //add the task id to the object
     taskDataObj.id = taskIdCounter;
@@ -233,55 +249,20 @@ var saveTasks = function(){
 //loads the tasks array
 var loadTasks = function(){
     //retreive tasks from localStorage
-    tasks = localStorage.getItem("tasks");
+    var savedTasks = localStorage.getItem("tasks");
     //check if the tasks array is null
-    if(!tasks){
-        tasks = []
+    if(!savedTasks){
         //ends the function since we dont want anything returning to the page
         return false;
     }
     //if not null, convert the string back into a proper array
-    tasks = JSON.parse(tasks);
+    savedTasks = JSON.parse(savedTasks);
 
-    //now, using a for loop, print the array using DOM methods
-    for(var i=0; i<tasks.length; i++){
-        //generate variables
-        tasks[i].id = taskIdCounter;
-        var listItemEl = document.createElement("li");
-        var taskInfoEl = document.createElement("div");
-        //fill the list info
-        listItemEl.className = "task-item";
-        listItemEl.setAttribute("data-task-id", taskIdCounter);
-        //fill the div info
-        taskInfoEl.className = "task-info";
-        taskInfoEl.innerHTML = "<h3 class='task-name'>" + tasks[i].name + "</h3><span class='task-type'>" + tasks[i].type + "</span>";
-        //append the div to the list
-        listItemEl.appendChild(taskInfoEl);
-        //generate the edit, delete, and chang ebuttons and attatch it to the variable
-        var taskActionsEl = createTaskActions(tasks[i].id);
-        //then append to the list
-        listItemEl.appendChild(taskActionsEl);
-
-        //if the status matches, then change the  item on the drop down list to the 0'th index
-        if (tasks[i].status === "to do") {
-            listItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
-            //lastly, append to the parent container
-            taskToDoEl.appendChild(listItemEl);
-          } 
-        else if (tasks[i].status === "in progress") {
-            listItemEl.querySelector("select[name='status-change']").selectedIndex = 1;
-            taskInProgressEl.appendChild(listItemEl);
-          } 
-        else if (tasks[i].status === "completed") {
-            listItemEl.querySelector("select[name='status-change']").selectedIndex = 2;
-            taskCompletedEl.appendChild(listItemEl);
-          }
-        //increment the taskIdCounter
-        taskIdCounter++;
-
-        console.log(listItemEl);
+    //loop through the savedTasks array
+    for(var i=0; i<savedTasks.length; i++){
+        //pass each task object (index) into the createTaskEl() function to create the list, div, buttons, etc.
+        createTaskEl(savedTasks[i]);
     }
-
 };
 
 loadTasks();
